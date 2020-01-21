@@ -1,8 +1,11 @@
 ---
 title: "Week 2 Assigment"
 author: "laknath Gunathilake"
-date: "January 14, 2020"
-output: html_document
+date: "January 15, 2020"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -15,51 +18,72 @@ source("http://www.openintro.org/stat/data/cdc.R")
 
 ## NOW ON YOUR OWN
 
-+Make a scatterplot of weight versus desired weight. Describe the relationship between these two variables.
+###1. Make a scatterplot of weight versus desired weight. Describe the relationship between these two variables.
 
 ```{r plot}
 plot( cdc$weight , cdc$wtdesire  )  
 ```
 
 
-The actual weight and desired weight seem to have a strong association between 75 and 275lb. However, this relationship is weaker for those who are above 300lb. Meaning for those who are heavier or obese doesn't have their desired weight.
+The actual weight and desired weight seem to have a strong association between 75 and 275lb. However, this relationship is weaker for those who are above 300lb.This would make sense since, we can assume that those who are overweight/obese hope to loose weight, and thus have a desired weight that is lower than their current weight.
 
 
-##-Let's consider a new variable: the difference between desired weight (wtdesire) and current weight (weight).
+
+###2. Let's consider a new variable: the difference between desired weight (wtdesire) and current weight (weight).
 Create this new variable by subtracting the two columns in the data frame and assigning them to a new object called wdiff.
 ```{r}
   wdiff = cdc$wtdesire - cdc$weight 
 ```
-#What type of data is wdiff? If an observation wdiff is 0, what does this mean about the person's weight and desired weight
+###3. What type of data is wdiff? If an observation wdiff is 0, what does this mean about the person's weight and desired weight What if wdiff is positive or negative?
 
 ```{r}
-  class(wdiff)
+    class(wdiff)
 ```
+  
+  + The class of Data is an Integer
+  + the actual weight and the desired weight are the same:or a person weighs exactly how much they want to weigh.
+  + negative wdiff=This means that the actual weight is higher than desired weight (They would hope to loose weight)
+  + positive wdiff=This means that the the actual weight is lower than the desired weight (they would hope to gain weight)
 
--integer
--the actual weight and the desired weight are the same-Or a person is weighs exactly how much they want to weigh
--negative wdiff=This means that the actual weight is higher than desired weight (They would hope to loose weight)
--positive wdiff=This means that the the actual weight is lower than the desired weight (they would hope to gain weight)
-
-##Describe the distribution of wdiff in terms of its center, shape, and spread, including any plots you use.
+###4. Describe the distribution of wdiff in terms of its center, shape, and spread, including any plots you use.
 
 ```{r}
     hist(wdiff,breaks = 75,xlim = c(-250,200),ylim = c(0,9000))
     mean(wdiff)
     median(wdiff)
+    min(wdiff)
+    max(wdiff)
+    library(moments)
+    skewness(wdiff)
 ```
 
--the wdiff slightly left skewed
--wdiff has average desired weight of -14.5 and a median desired weight of -10. Based on this we can conclude that most people are unhappy about their weight (they have a lower desired weight than their current weight)
 
-#Using  mumerical summaries and a side-by-side box plot, determine if men tend to view their weight differently than women.
+  + Since median is outlier resistant we can use the median and conclude that the center of desired weight is `r median(wdiff)` lb
+  + the wdiff slightly left skewed and this is evident from the skewness score of `r skewness(wdiff)`
+  + wdiff has mean desired weight of -14.5 and a median desired weight of -10. Based on this we can conclude that most people are unhappy about        their weight (They hope to have a weight lower than their current weight)
+
+### 5.Using  mumerical summaries and a side-by-side box plot, determine if men tend to view their weight differently than women.
 
 ```{r}
-  boxplot(cdc$weight~cdc$gender)
-  summary(cdc$weight)
-  tapply(cdc$weight,cdc$gender, mean, na.rm=TRUE)
-  tapply(cdc$weight,cdc$gender, median, na.rm=TRUE)
+  boxplot(cdc$wtdesire~cdc$gender,col=(c("blue","pink")))
+  tapply(cdc$wtdesire,cdc$gender, mean, na.rm=TRUE)
+  tapply(cdc$wtdesire,cdc$gender, median, na.rm=TRUE)
 ```
 
--Men tend to have a higher desired weight than women. 
+ + It is evident that men tend to have a higher desired weight on average than women. On average, men seem to be want to be around 178lb while women    hope to be around the 133lb mark. 
 
+### 6.Now it's time to get creative. Find the mean and standard deviation of weight and determine what proportion of the weights are within one standard deviation of the mean.
+
+```{r}
+mean(cdc$weight)
+sd(cdc$weight)
+
+within_one_negative<-mean(cdc$weight)-sd(cdc$weight)
+within_one_positive<-mean(cdc$weight)+sd(cdc$weight)
+
+within_one_sd<-cdc$weight[ cdc$weight >= within_one_negative & cdc$weight <= within_one_positive]
+length(within_one_sd)/length(cdc$weight)*100
+
+```
+
+  + 70 percents of the weights are within one standard deviation of the mean weight which is`r mean(cdc$weight)` 
